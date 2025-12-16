@@ -569,6 +569,15 @@
             color: var(--dark-negative);
         }
         
+        .stoploss-column {
+            color: var(--light-negative);
+            font-weight: 600;
+        }
+        
+        .dark-mode .stoploss-column {
+            color: var(--dark-negative);
+        }
+        
         .ratio-display {
             display: flex;
             justify-content: center;
@@ -980,8 +989,8 @@
             }
         });
         
-        // Format number with commas
-        function formatNumber(num) {
+        // Format number with commas and minus sign
+        function formatNumber(num, showPlusMinus = false) {
             if (num === null || num === undefined || isNaN(num)) return '0.00';
             
             // Handle negative numbers
@@ -992,13 +1001,24 @@
             const parts = absNum.toFixed(2).split('.');
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             
-            return (isNegative ? '-' : '') + parts.join('.');
+            if (showPlusMinus) {
+                return (isNegative ? '-' : '+') + parts.join('.');
+            } else {
+                return (isNegative ? '-' : '') + parts.join('.');
+            }
         }
         
         // Format number without commas for distances
-        function formatDistance(num) {
+        function formatDistance(num, alwaysShowMinus = false) {
             if (num === null || num === undefined || isNaN(num)) return '0.00';
-            return Math.abs(num).toFixed(2);
+            
+            if (alwaysShowMinus) {
+                // Always show with minus sign
+                return '-' + Math.abs(num).toFixed(2);
+            } else {
+                // Show with appropriate sign
+                return (num >= 0 ? '+' : '') + Math.abs(num).toFixed(2);
+            }
         }
         
         // Auto-populate entry price and investment from positive to negative
@@ -1124,14 +1144,12 @@
             // Update UI
             
             // Target Distance: Always show with + sign (since target should be above entry)
-            targetDistance.textContent = `+${formatDistance(Math.abs(targetDist))}`;
+            targetDistance.textContent = `+${Math.abs(targetDist).toFixed(2)}`;
             targetDistance.className = 'result-value positive-change';
             
             // Stop Loss Distance: Show as negative number WITHOUT + sign
-            // For stop loss, entry should be > stop loss, so result will be positive
-            // But we want to display it as negative distance
             const stopLossDisplayValue = Math.abs(stoplossDist);
-            stoplossDistance.textContent = `-${formatDistance(stopLossDisplayValue)}`;
+            stoplossDistance.textContent = `-${stopLossDisplayValue.toFixed(2)}`;
             stoplossDistance.className = 'result-value negative-change';
             
             riskRewardRatio.textContent = riskRewardRatioVal > 0 ? `${riskRewardRatioVal.toFixed(2)}:1` : '0.00:1';
@@ -1140,7 +1158,7 @@
             return { targetDist, stoplossDist, riskRewardRatioVal, distanceRatioVal };
         }
         
-        // Generate percentage table
+        // Generate percentage table with red stop loss values
         function generatePercentageTable(positiveData, negativeData) {
             const percentages = [0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5];
             let tableHTML = '';
@@ -1161,13 +1179,13 @@
                 tableHTML += `
                     <tr>
                         <td class="percentage-change positive-change">+${(percent * 100).toFixed(0)}%</td>
-                        <td>${positiveData.entry > 0 ? positiveNewTarget.toFixed(2) : '0.00'}</td>
-                        <td>${positiveData.entry > 0 ? positiveChangeAmount.toFixed(2) : '0.00'}</td>
-                        <td>${positiveData.entry > 0 ? formatNumber(positiveTotalProfitNew) : '0.00'}</td>
+                        <td class="positive-change">${positiveData.entry > 0 ? positiveNewTarget.toFixed(2) : '0.00'}</td>
+                        <td class="positive-change">+${positiveData.entry > 0 ? positiveChangeAmount.toFixed(2) : '0.00'}</td>
+                        <td class="positive-change">${positiveData.entry > 0 ? formatNumber(positiveTotalProfitNew) : '0.00'}</td>
                         <td class="percentage-change negative-change">-${(percent * 100).toFixed(0)}%</td>
-                        <td>${negativeData.entry > 0 ? negativeNewStoploss.toFixed(2) : '0.00'}</td>
-                        <td>${negativeData.entry > 0 ? negativeChangeAmount.toFixed(2) : '0.00'}</td>
-                        <td>${negativeData.entry > 0 ? formatNumber(negativeTotalLossNew) : '0.00'}</td>
+                        <td class="negative-change">${negativeData.entry > 0 ? negativeNewStoploss.toFixed(2) : '0.00'}</td>
+                        <td class="negative-change">-${negativeData.entry > 0 ? negativeChangeAmount.toFixed(2) : '0.00'}</td>
+                        <td class="negative-change">${negativeData.entry > 0 ? formatNumber(negativeTotalLossNew) : '0.00'}</td>
                     </tr>
                 `;
             });
