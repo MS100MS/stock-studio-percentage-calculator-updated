@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Percentage Calculator For Trading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Light mode colors */
+            --light-bg: #f8f9fa;
+            --light-panel: #ffffff;
+            --light-text: #333333;
+            --light-border: #e0e0e0;
+            --light-primary: #4a6b3d; /* Olive green */
+            --light-secondary: #a5b592; /* Pastel olive */
+            --light-accent: #6d8c5a;
+            --light-input-bg: #f5f7f3;
+            --light-positive: #2e7d32;
+            --light-negative: #c62828;
+            --light-warning: #ff9800;
+            --light-target: #2196f3;
+            --light-stoploss: #ff5722;
+            --light-info: #3f51b5;
+            
+            /* Dark mode colors */
+            --dark-bg: #121212;
+            --dark-panel: #1e1e1e;
+            --dark-text: #e0e0e0;
+            --dark-border: #333333;
+            --dark-primary: #6d8c5a;
+            --dark-secondary: #3c4d36;
+            --dark-accent: #8ba87c;
+            --dark-input-bg: #2a2a2a;
+            --dark-positive: #4caf50;
+            --dark-negative: #ef5350;
+            --dark-warning: #ffb74d;
+            --dark-target: #64b5f6;
+            --dark-stoploss: #ff8a65;
+            --dark-info: #7986cb;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--light-bg);
+            color: var(--light-text);
+            padding: 20px;
+        }
+        
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-primary);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .dark-mode header {
+            border-bottom-color: var(--dark-primary);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--light-primary);
+        }
+        
+        .dark-mode .logo i {
+            color: var(--dark-primary);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            color: var(--light-primary);
+        }
+        
+        .dark-mode h1 {
+            color: var(--dark-primary);
+        }
+        
+        .subtitle {
+            color: var(--light-text);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+        
+        .dark-mode .subtitle {
+            color: var(--dark-text);
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--light-primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .calculator-panel {
+            background-color: var(--light-panel);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--light-border);
+        }
+        
+        .dark-mode .calculator-panel {
+            background-color: var(--dark-panel);
+            border-color: var(--dark-border);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-border);
+            flex-wrap: wrap;
+        }
+        
+        .dark-mode .panel-header {
+            border-bottom-color: var(--dark-border);
+        }
+        
+        .panel-header h2 {
+            font-size: 1.5rem;
+            color: var(--light-primary);
+        }
+        
+        .dark-mode .panel-header h2 {
+            color: var(--dark-primary);
+        }
+        
+        .panel-icon {
+            font-size: 1.8rem;
+            color: var(--light-secondary);
+        }
+        
+        .dark-mode .panel-icon {
+            color: var(--dark-secondary);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .input-row label {
+            font-weight: 600;
+            color: var(--light-text);
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .dark-mode .input-row label {
+            color: var(--dark-text);
+        }
+        
+        .input-row input {
+            flex: 2;
+            padding: 12px 15px;
+            border: 1px solid var(--light-border);
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: var(--light-input-bg);
+            color: var(--light-text);
+            min-width: 200px;
+            text-align: right;
+            max-width: 300px;
+        }
+        
+        .dark-mode .input-row input {
+            background-color: var(--dark-input-bg);
+            border-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+        
+        .input-row input:focus {
+            outline: none;
+            border-color: var(--light-primary);
+            box-shadow: 0 0 0 2px rgba(74, 107, 61, 0.2);
+        }
+        
+        .dark-mode .input-row input:focus {
+            border-color: var(--dark-primary);
+            box-shadow: 0 0 0 2px rgba(109, 140, 90, 0.3);
+        }
+        
+        .sync-indicator {
+            font-size: 0.8rem;
+            color: var(--light-secondary);
+            background: rgba(165, 181, 146, 0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-left: 10px;
+            display: inline-block;
+        }
+        
+        .dark-mode .sync-indicator {
+            color: var(--dark-secondary);
+            background: rgba(60, 77, 54, 0.3);
+        }
+        
+        .calculation-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--light-border);
+        }
+        
+        .calculation-section h3 {
+            font-size: 1.1rem;
+            color: var(--light-primary);
+            margin-bottom: 15px;
+        }
+        
+        .dark-mode .calculation-section h3 {
+            color: var(--dark-primary);
+        }
+        
+        .quantity-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .quantity-box {
+            background-color: rgba(165, 181, 146, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--light-border);
+        }
+        
+        .dark-mode .quantity-box {
+            background-color: rgba(60, 77, 54, 0.2);
+            border-color: var(--dark-border);
+        }
+        
+        .quantity-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .dark-mode .quantity-label {
+            color: var(--dark-text);
+        }
+        
+        .quantity-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--light-primary);
+        }
+        
+        .dark-mode .quantity-value {
+            color: var(--dark-primary);
+        }
+        
+        .quantity-value.exact {
+            color: var(--light-info);
+        }
+        
+        .dark-mode .quantity-value.exact {
+            color: var(--dark-info);
+        }
+        
+        .amount-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .amount-box {
+            background-color: rgba(165, 181, 146, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--light-border);
+        }
+        
+        .dark-mode .amount-box {
+            background-color: rgba(60, 77, 54, 0.2);
+            border-color: var(--dark-border);
+        }
+        
+        .amount-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .dark-mode .amount-label {
+            color: var(--dark-text);
+        }
+        
+        .amount-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--light-primary);
+        }
+        
+        .dark-mode .amount-value {
+            color: var(--dark-primary);
+        }
+        
+        .amount-value.exact {
+            color: var(--light-info);
+        }
+        
+        .dark-mode .amount-value.exact {
+            color: var(--dark-info);
+        }
+        
+        .results-panel {
+            grid-column: span 2;
+        }
+        
+        @media (max-width: 1100px) {
+            .results-panel {
+                grid-column: span 1;
+            }
+            
+            .quantity-display,
+            .amount-display {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-box {
+            background-color: var(--light-panel);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid var(--light-primary);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark-mode .result-box {
+            background-color: var(--dark-panel);
+            border-left-color: var(--dark-primary);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-box.positive {
+            border-left-color: var(--light-positive);
+        }
+        
+        .dark-mode .result-box.positive {
+            border-left-color: var(--dark-positive);
+        }
+        
+        .result-box.negative {
+            border-left-color: var(--light-negative);
+        }
+        
+        .dark-mode .result-box.negative {
+            border-left-color: var(--dark-negative);
+        }
+        
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .dark-mode .result-label {
+            color: var(--dark-text);
+        }
+        
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light-primary);
+        }
+        
+        .dark-mode .result-value {
+            color: var(--dark-primary);
+        }
+        
+        .result-box.positive .result-value {
+            color: var(--light-positive);
+        }
+        
+        .dark-mode .result-box.positive .result-value {
+            color: var(--dark-positive);
+        }
+        
+        .result-box.negative .result-value {
+            color: var(--light-negative);
+        }
+        
+        .dark-mode .result-box.negative .result-value {
+            color: var(--dark-negative);
+        }
+        
+        .target-box {
+            border-left-color: var(--light-target);
+        }
+        
+        .dark-mode .target-box {
+            border-left-color: var(--dark-target);
+        }
+        
+        .stoploss-box {
+            border-left-color: var(--light-stoploss);
+        }
+        
+        .dark-mode .stoploss-box {
+            border-left-color: var(--dark-stoploss);
+        }
+        
+        .percentage-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+        
+        .percentage-table th {
+            background-color: var(--light-primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .dark-mode .percentage-table th {
+            background-color: var(--dark-primary);
+        }
+        
+        .percentage-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--light-border);
+        }
+        
+        .dark-mode .percentage-table td {
+            border-bottom-color: var(--dark-border);
+        }
+        
+        .percentage-table tr:nth-child(even) {
+            background-color: rgba(165, 181, 146, 0.1);
+        }
+        
+        .dark-mode .percentage-table tr:nth-child(even) {
+            background-color: rgba(60, 77, 54, 0.2);
+        }
+        
+        .percentage-change {
+            font-weight: 600;
+        }
+        
+        .positive-change {
+            color: var(--light-positive);
+        }
+        
+        .dark-mode .positive-change {
+            color: var(--dark-positive);
+        }
+        
+        .negative-change {
+            color: var(--light-negative);
+        }
+        
+        .dark-mode .negative-change {
+            color: var(--dark-negative);
+        }
+        
+        .ratio-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 25px;
+            padding: 20px;
+            background-color: rgba(165, 181, 146, 0.15);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .dark-mode .ratio-display {
+            background-color: rgba(60, 77, 54, 0.2);
+        }
+        
+        .ratio-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--light-primary);
+            padding: 10px 25px;
+            background-color: var(--light-panel);
+            border-radius: 6px;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .dark-mode .ratio-value {
+            color: var(--dark-primary);
+            background-color: var(--dark-panel);
+        }
+        
+        .ratio-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .reset-btn {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 30px;
+            background-color: var(--light-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .reset-btn:hover {
+            background-color: var(--light-accent);
+            transform: translateY(-2px);
+        }
+        
+        .dark-mode .reset-btn {
+            background-color: var(--dark-primary);
+        }
+        
+        .dark-mode .reset-btn:hover {
+            background-color: var(--dark-accent);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-border);
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        .dark-mode footer {
+            border-top-color: var(--dark-border);
+            color: var(--dark-text);
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .theme-toggle {
+                align-self: flex-start;
+            }
+            
+            .main-content {
+                gap: 20px;
+            }
+            
+            .calculator-panel {
+                padding: 20px;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-row label {
+                min-width: 100%;
+            }
+            
+            .input-row input {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            
+            .results-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .percentage-table {
+                font-size: 0.9rem;
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .ratio-display {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-percentage"></i>
+                <div>
+                    <h1>Percentage Calculator For Trading</h1>
+                    <p class="subtitle">Calculate exact investment needed for exact and rounded quantities</p>
+                </div>
+            </div>
+            <div class="theme-toggle">
+                <span id="theme-label">Light Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <!-- Target (Profit) Scenario -->
+            <div class="calculator-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-bullseye" style="color: var(--light-target); margin-right: 10px;"></i>Target (Profit) Scenario</h2>
+                    <i class="fas fa-arrow-up panel-icon"></i>
+                </div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label for="positive-entry">Entry Price <span class="sync-indicator">Auto-syncs</span></label>
+                        <input type="number" id="positive-entry" value="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="input-row">
+                        <label for="positive-target">Target Price</label>
+                        <input type="number" id="positive-target" value="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="input-row">
+                        <label for="positive-investment">Total Capital <span class="sync-indicator">Auto-syncs</span></label>
+                        <input type="number" id="positive-investment" value="0" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <div class="calculation-section">
+                    <h3>Quantity Calculation</h3>
+                    <div class="quantity-display">
+                        <div class="quantity-box">
+                            <div class="quantity-label">Exact Quantity</div>
+                            <div class="quantity-value exact" id="positive-exact-quantity">0.00</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Capital ÷ Entry Price</div>
+                        </div>
+                        <div class="quantity-box">
+                            <div class="quantity-label">Rounded Quantity</div>
+                            <div class="quantity-value" id="positive-rounded-quantity">0</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Round(Exact Quantity)</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 20px;">Investment Needed</h3>
+                    <div class="amount-display">
+                        <div class="amount-box">
+                            <div class="amount-label">For Exact Quantity</div>
+                            <div class="amount-value exact" id="positive-exact-amount">0.00</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Exact Quantity × Entry Price</div>
+                        </div>
+                        <div class="amount-box">
+                            <div class="amount-label">For Rounded Quantity</div>
+                            <div class="amount-value" id="positive-rounded-amount">0.00</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Rounded Quantity × Entry Price</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-container">
+                    <div class="result-box target-box">
+                        <div class="result-label">Target Price</div>
+                        <div class="result-value" id="positive-target-display">0.00</div>
+                    </div>
+                    <div class="result-box positive">
+                        <div class="result-label">Profit Per Unit</div>
+                        <div class="result-value" id="positive-profit-per-unit">0.00</div>
+                    </div>
+                    <div class="result-box positive">
+                        <div class="result-label">Percentage Gain</div>
+                        <div class="result-value" id="positive-percentage-gain">0.00%</div>
+                    </div>
+                    <div class="result-box positive">
+                        <div class="result-label">Total Profit at Target</div>
+                        <div class="result-value" id="positive-total-profit">0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stop Loss (Risk) Scenario -->
+            <div class="calculator-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-shield-alt" style="color: var(--light-stoploss); margin-right: 10px;"></i>Stop Loss (Risk) Scenario</h2>
+                    <i class="fas fa-arrow-down panel-icon"></i>
+                </div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label for="negative-entry">Entry Price <span class="sync-indicator">Auto-synced</span></label>
+                        <input type="number" id="negative-entry" value="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="input-row">
+                        <label for="negative-stoploss">Stop Loss Price</label>
+                        <input type="number" id="negative-stoploss" value="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="input-row">
+                        <label for="negative-investment">Total Capital <span class="sync-indicator">Auto-synced</span></label>
+                        <input type="number" id="negative-investment" value="0" step="0.01" placeholder="0.00">
+                    </div>
+                </div>
+                
+                <div class="calculation-section">
+                    <h3>Quantity Calculation</h3>
+                    <div class="quantity-display">
+                        <div class="quantity-box">
+                            <div class="quantity-label">Exact Quantity</div>
+                            <div class="quantity-value exact" id="negative-exact-quantity">0.00</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Capital ÷ Entry Price</div>
+                        </div>
+                        <div class="quantity-box">
+                            <div class="quantity-label">Rounded Quantity</div>
+                            <div class="quantity-value" id="negative-rounded-quantity">0</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Round(Exact Quantity)</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 20px;">Investment Needed</h3>
+                    <div class="amount-display">
+                        <div class="amount-box">
+                            <div class="amount-label">For Exact Quantity</div>
+                            <div class="amount-value exact" id="negative-exact-amount">0.00</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Exact Quantity × Entry Price</div>
+                        </div>
+                        <div class="amount-box">
+                            <div class="amount-label">For Rounded Quantity</div>
+                            <div class="amount-value" id="negative-rounded-amount">0.00</div>
+                            <div style="font-size: 0.8rem; color: var(--light-text); margin-top: 5px;">Rounded Quantity × Entry Price</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-container">
+                    <div class="result-box stoploss-box">
+                        <div class="result-label">Stop Loss Price</div>
+                        <div class="result-value" id="negative-stoploss-display">0.00</div>
+                    </div>
+                    <div class="result-box negative">
+                        <div class="result-label">Loss Per Unit</div>
+                        <div class="result-value" id="negative-loss-per-unit">0.00</div>
+                    </div>
+                    <div class="result-box negative">
+                        <div class="result-label">Percentage Loss</div>
+                        <div class="result-value" id="negative-percentage-loss">0.00%</div>
+                    </div>
+                    <div class="result-box negative">
+                        <div class="result-label">Total Loss at Stop Loss</div>
+                        <div class="result-value" id="negative-total-loss">0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results & Analysis Panel -->
+            <div class="calculator-panel results-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-balance-scale" style="margin-right: 10px;"></i>Risk/Reward Analysis</h2>
+                    <i class="fas fa-calculator panel-icon"></i>
+                </div>
+                
+                <div class="results-container" style="margin-top: 0;">
+                    <div class="result-box">
+                        <div class="result-label">Risk/Reward Ratio</div>
+                        <div class="result-value" id="risk-reward-ratio">0.00:1</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px; color: var(--light-text);">(Reward:Risk)</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label">Target Distance</div>
+                        <div class="result-value positive-change" id="target-distance">0.00</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px; color: var(--light-text);">From Entry</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label">Stop Loss Distance</div>
+                        <div class="result-value negative-change" id="stoploss-distance">0.00</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px; color: var(--light-text);">From Entry</div>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label">Distance Ratio</div>
+                        <div class="result-value" id="distance-ratio">0.00:1</div>
+                        <div style="font-size: 0.9rem; margin-top: 5px; color: var(--light-text);">(Target:Stop Loss)</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: var(--light-primary);">Percentage Change Scenarios (Using Rounded Quantity)</h3>
+                <table class="percentage-table">
+                    <thead>
+                        <tr>
+                            <th>% Change</th>
+                            <th>New Target Price</th>
+                            <th>Change Amount</th>
+                            <th>Total Profit/Loss</th>
+                            <th>% Change</th>
+                            <th>New Stop Loss Price</th>
+                            <th>Change Amount</th>
+                            <th>Total Profit/Loss</th>
+                        </tr>
+                    </thead>
+                    <tbody id="percentage-table-body">
+                        <!-- Table rows will be generated by JavaScript -->
+                    </tbody>
+                </table>
+                
+                <button class="reset-btn" id="reset-btn">
+                    <i class="fas fa-redo-alt"></i> Reset to Zero
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Percentage Calculator For Trading &copy; 2023 | Shows exact investment needed for exact and rounded quantities</p>
+            <p style="margin-top: 5px;">All calculations use the rounded quantity for profit/loss calculations</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeLabel = document.getElementById('theme-label');
+        const body = document.body;
+        
+        // Input Elements - Positive (Target)
+        const positiveEntry = document.getElementById('positive-entry');
+        const positiveTarget = document.getElementById('positive-target');
+        const positiveInvestment = document.getElementById('positive-investment');
+        
+        // Input Elements - Negative (Stop Loss)
+        const negativeEntry = document.getElementById('negative-entry');
+        const negativeStoploss = document.getElementById('negative-stoploss');
+        const negativeInvestment = document.getElementById('negative-investment');
+        
+        // Quantity Display Elements
+        const positiveExactQuantity = document.getElementById('positive-exact-quantity');
+        const positiveRoundedQuantity = document.getElementById('positive-rounded-quantity');
+        const negativeExactQuantity = document.getElementById('negative-exact-quantity');
+        const negativeRoundedQuantity = document.getElementById('negative-rounded-quantity');
+        
+        // Amount Display Elements
+        const positiveExactAmount = document.getElementById('positive-exact-amount');
+        const positiveRoundedAmount = document.getElementById('positive-rounded-amount');
+        const negativeExactAmount = document.getElementById('negative-exact-amount');
+        const negativeRoundedAmount = document.getElementById('negative-rounded-amount');
+        
+        // Result Elements - Positive
+        const positiveTargetDisplay = document.getElementById('positive-target-display');
+        const positiveProfitPerUnit = document.getElementById('positive-profit-per-unit');
+        const positivePercentageGain = document.getElementById('positive-percentage-gain');
+        const positiveTotalProfit = document.getElementById('positive-total-profit');
+        
+        // Result Elements - Negative
+        const negativeStoplossDisplay = document.getElementById('negative-stoploss-display');
+        const negativeLossPerUnit = document.getElementById('negative-loss-per-unit');
+        const negativePercentageLoss = document.getElementById('negative-percentage-loss');
+        const negativeTotalLoss = document.getElementById('negative-total-loss');
+        
+        // Analysis Elements
+        const riskRewardRatio = document.getElementById('risk-reward-ratio');
+        const targetDistance = document.getElementById('target-distance');
+        const stoplossDistance = document.getElementById('stoploss-distance');
+        const distanceRatio = document.getElementById('distance-ratio');
+        const percentageTableBody = document.getElementById('percentage-table-body');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // Theme Toggle
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                themeLabel.textContent = 'Dark Mode';
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                themeLabel.textContent = 'Light Mode';
+            }
+        });
+        
+        // Format number with commas
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0.00';
+            
+            // Handle negative numbers
+            const isNegative = num < 0;
+            const absNum = Math.abs(num);
+            
+            // Format with 2 decimal places and commas
+            const parts = absNum.toFixed(2).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            return (isNegative ? '-' : '') + parts.join('.');
+        }
+        
+        // Format number without commas for distances
+        function formatDistance(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0.00';
+            return Math.abs(num).toFixed(2);
+        }
+        
+        // Auto-populate entry price and investment from positive to negative
+        function syncPositiveToNegative() {
+            negativeEntry.value = positiveEntry.value;
+            negativeInvestment.value = positiveInvestment.value;
+        }
+        
+        // Calculate positive (target) results
+        function calculatePositiveResults() {
+            const entry = parseFloat(positiveEntry.value) || 0;
+            const target = parseFloat(positiveTarget.value) || 0;
+            const investment = parseFloat(positiveInvestment.value) || 0;
+            
+            // Calculate exact quantity (Investment ÷ Entry Price)
+            const exactQuantity = entry > 0 ? investment / entry : 0;
+            
+            // Calculate rounded quantity
+            const roundedQuantity = Math.round(exactQuantity);
+            
+            // Calculate investment needed for exact quantity
+            const exactAmount = exactQuantity * entry;
+            
+            // Calculate investment needed for rounded quantity
+            const roundedAmount = roundedQuantity * entry;
+            
+            // Calculate profit per unit (Target - Entry)
+            const profitPerUnit = target - entry;
+            
+            // Calculate percentage gain ((Target - Entry) / Entry * 100)
+            const percentageGain = entry > 0 ? ((profitPerUnit) / entry) * 100 : 0;
+            
+            // Calculate total profit (Profit per unit × Rounded Quantity)
+            const totalProfit = profitPerUnit * roundedQuantity;
+            
+            // Update UI
+            positiveExactQuantity.textContent = exactQuantity.toFixed(2);
+            positiveRoundedQuantity.textContent = roundedQuantity;
+            positiveExactAmount.textContent = formatNumber(exactAmount);
+            positiveRoundedAmount.textContent = formatNumber(roundedAmount);
+            positiveTargetDisplay.textContent = formatNumber(target);
+            positiveProfitPerUnit.textContent = formatNumber(profitPerUnit);
+            positivePercentageGain.textContent = `${percentageGain.toFixed(2)}%`;
+            positiveTotalProfit.textContent = formatNumber(totalProfit);
+            
+            return { 
+                entry, 
+                target, 
+                investment, 
+                exactQuantity, 
+                roundedQuantity,
+                exactAmount,
+                roundedAmount,
+                profitPerUnit, 
+                percentageGain, 
+                totalProfit 
+            };
+        }
+        
+        // Calculate negative (stop loss) results
+        function calculateNegativeResults() {
+            const entry = parseFloat(negativeEntry.value) || 0;
+            const stoploss = parseFloat(negativeStoploss.value) || 0;
+            const investment = parseFloat(negativeInvestment.value) || 0;
+            
+            // Calculate exact quantity (Investment ÷ Entry Price)
+            const exactQuantity = entry > 0 ? investment / entry : 0;
+            
+            // Calculate rounded quantity
+            const roundedQuantity = Math.round(exactQuantity);
+            
+            // Calculate investment needed for exact quantity
+            const exactAmount = exactQuantity * entry;
+            
+            // Calculate investment needed for rounded quantity
+            const roundedAmount = roundedQuantity * entry;
+            
+            // Calculate loss per unit (Entry - Stop Loss)
+            const lossPerUnit = entry - stoploss;
+            
+            // Calculate percentage loss ((Entry - Stop Loss) / Entry * 100)
+            const percentageLoss = entry > 0 ? (lossPerUnit / entry) * 100 : 0;
+            
+            // Calculate total loss (Loss per unit × Rounded Quantity)
+            const totalLoss = lossPerUnit * roundedQuantity;
+            
+            // Update UI
+            negativeExactQuantity.textContent = exactQuantity.toFixed(2);
+            negativeRoundedQuantity.textContent = roundedQuantity;
+            negativeExactAmount.textContent = formatNumber(exactAmount);
+            negativeRoundedAmount.textContent = formatNumber(roundedAmount);
+            negativeStoplossDisplay.textContent = formatNumber(stoploss);
+            negativeLossPerUnit.textContent = formatNumber(lossPerUnit);
+            negativePercentageLoss.textContent = `${percentageLoss.toFixed(2)}%`;
+            negativeTotalLoss.textContent = formatNumber(totalLoss);
+            
+            return { 
+                entry, 
+                stoploss, 
+                investment, 
+                exactQuantity, 
+                roundedQuantity,
+                exactAmount,
+                roundedAmount,
+                lossPerUnit, 
+                percentageLoss, 
+                totalLoss 
+            };
+        }
+        
+        // Calculate risk/reward analysis
+        function calculateRiskRewardAnalysis(positiveResults, negativeResults) {
+            // Calculate distances from entry
+            const targetDist = positiveResults.target - positiveResults.entry;
+            const stoplossDist = negativeResults.entry - negativeResults.stoploss;
+            
+            // Calculate risk/reward ratio (Reward:Risk) - using absolute values
+            const riskRewardRatioVal = Math.abs(stoplossDist) > 0 ? Math.abs(targetDist) / Math.abs(stoplossDist) : 0;
+            
+            // Calculate distance ratio (Target Distance : Stop Loss Distance) - using absolute values
+            const distanceRatioVal = Math.abs(stoplossDist) > 0 ? Math.abs(targetDist) / Math.abs(stoplossDist) : 0;
+            
+            // Update UI
+            
+            // Target Distance: Always show with + sign (since target should be above entry)
+            targetDistance.textContent = `+${formatDistance(Math.abs(targetDist))}`;
+            targetDistance.className = 'result-value positive-change';
+            
+            // Stop Loss Distance: Show as negative number WITHOUT + sign
+            // For stop loss, entry should be > stop loss, so result will be positive
+            // But we want to display it as negative distance
+            const stopLossDisplayValue = Math.abs(stoplossDist);
+            stoplossDistance.textContent = `-${formatDistance(stopLossDisplayValue)}`;
+            stoplossDistance.className = 'result-value negative-change';
+            
+            riskRewardRatio.textContent = riskRewardRatioVal > 0 ? `${riskRewardRatioVal.toFixed(2)}:1` : '0.00:1';
+            distanceRatio.textContent = distanceRatioVal > 0 ? `${distanceRatioVal.toFixed(2)}:1` : '0.00:1';
+            
+            return { targetDist, stoplossDist, riskRewardRatioVal, distanceRatioVal };
+        }
+        
+        // Generate percentage table
+        function generatePercentageTable(positiveData, negativeData) {
+            const percentages = [0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5];
+            let tableHTML = '';
+            
+            percentages.forEach(percent => {
+                // Positive calculations (target)
+                const positiveChangeAmount = positiveData.entry * percent;
+                const positiveNewTarget = positiveData.entry + positiveChangeAmount;
+                const positiveProfitPerUnitNew = positiveNewTarget - positiveData.entry;
+                const positiveTotalProfitNew = positiveProfitPerUnitNew * positiveData.roundedQuantity;
+                
+                // Negative calculations (stop loss)
+                const negativeChangeAmount = negativeData.entry * percent;
+                const negativeNewStoploss = negativeData.entry - negativeChangeAmount;
+                const negativeLossPerUnitNew = negativeData.entry - negativeNewStoploss;
+                const negativeTotalLossNew = negativeLossPerUnitNew * negativeData.roundedQuantity;
+                
+                tableHTML += `
+                    <tr>
+                        <td class="percentage-change positive-change">+${(percent * 100).toFixed(0)}%</td>
+                        <td>${positiveData.entry > 0 ? positiveNewTarget.toFixed(2) : '0.00'}</td>
+                        <td>${positiveData.entry > 0 ? positiveChangeAmount.toFixed(2) : '0.00'}</td>
+                        <td>${positiveData.entry > 0 ? formatNumber(positiveTotalProfitNew) : '0.00'}</td>
+                        <td class="percentage-change negative-change">-${(percent * 100).toFixed(0)}%</td>
+                        <td>${negativeData.entry > 0 ? negativeNewStoploss.toFixed(2) : '0.00'}</td>
+                        <td>${negativeData.entry > 0 ? negativeChangeAmount.toFixed(2) : '0.00'}</td>
+                        <td>${negativeData.entry > 0 ? formatNumber(negativeTotalLossNew) : '0.00'}</td>
+                    </tr>
+                `;
+            });
+            
+            percentageTableBody.innerHTML = tableHTML;
+        }
+        
+        // Update all calculations
+        function updateAllCalculations() {
+            // First sync positive values to negative
+            syncPositiveToNegative();
+            
+            // Then calculate results
+            const positiveResults = calculatePositiveResults();
+            const negativeResults = calculateNegativeResults();
+            calculateRiskRewardAnalysis(positiveResults, negativeResults);
+            generatePercentageTable(positiveResults, negativeResults);
+        }
+        
+        // Event Listeners for inputs - Positive side
+        positiveEntry.addEventListener('input', updateAllCalculations);
+        positiveTarget.addEventListener('input', updateAllCalculations);
+        positiveInvestment.addEventListener('input', updateAllCalculations);
+        
+        // Event Listeners for inputs - Negative side
+        negativeEntry.addEventListener('input', function() {
+            // If user manually changes negative entry, update positive entry to match
+            positiveEntry.value = this.value;
+            updateAllCalculations();
+        });
+        
+        negativeStoploss.addEventListener('input', updateAllCalculations);
+        
+        negativeInvestment.addEventListener('input', function() {
+            // If user manually changes negative investment, update positive investment to match
+            positiveInvestment.value = this.value;
+            updateAllCalculations();
+        });
+        
+        // Reset all values to zero
+        resetBtn.addEventListener('click', function() {
+            positiveEntry.value = 0;
+            positiveTarget.value = 0;
+            positiveInvestment.value = 0;
+            
+            negativeStoploss.value = 0;
+            
+            updateAllCalculations();
+            
+            // Show reset confirmation
+            const originalText = resetBtn.innerHTML;
+            resetBtn.innerHTML = '<i class="fas fa-check"></i> Reset Complete!';
+            setTimeout(() => {
+                resetBtn.innerHTML = originalText;
+            }, 2000);
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAllCalculations();
+        });
+    </script>
+</body>
+</html>
